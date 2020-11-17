@@ -4,7 +4,7 @@ import React from 'react';
 const Header = () => (
   <header
     style={{
-      background: `green`,
+      background: `deepskyblue`,
       marginBottom: `1.45rem`,
     }}
   >
