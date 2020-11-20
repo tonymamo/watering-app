@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'gatsby';
-import { useFirestoreConnect } from 'react-redux-firebase';
+import { useFirestoreConnect, useFirebase } from 'react-redux-firebase';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { FaDizzy, FaSmile } from 'react-icons/fa';
@@ -31,7 +31,7 @@ const PlantImage = styled.img`
 `;
 
 const PlantStatus = styled.div`
-  width: 25%;
+  width: 45%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -47,6 +47,8 @@ const IndexPage = () => {
   // const auth = useSelector((state: RootState) => state.firebase.auth);
   const plants = useSelector((state: RootState) => state.firestore.ordered.plants);
   useFirestoreConnect([{ collection: 'plants' }]);
+
+  const firebase = useFirebase();
 
   const needsWatering = (howOften: string, lastWateredOn: string) => {
     // This functions takes in two parameters, howOften and the lastWateredOn date (as a string)
@@ -88,13 +90,24 @@ const IndexPage = () => {
     return new Date(lastWateredOn).getTime() <= wateringWindowCutoff.getTime();
   };
 
+  const updatePlantStatus = (plant) => {
+    firebase
+      .firestore()
+      .collection('plants')
+      .doc(plant.plantId)
+      .set({
+        ...plant,
+        lastWateredOn: new Date().toLocaleDateString(),
+      });
+  };
+
   return (
     <>
       <SEO title="Home" />
       <h1>My Plants</h1>
       {plants &&
         plants.length > 0 &&
-        plants.map((plant) => (
+        plants.map((plant: any) => (
           <PlantWrapper key={plant.title}>
             <PlantImageWrapper>
               <PlantImage src="https://placekitten.com/200" alt={`A ${plant.title} plant`} />
@@ -123,6 +136,11 @@ const IndexPage = () => {
                   ? 'Yes, water me now!'
                   : 'Nope, all good right now'}
               </p>
+              {needsWatering(plant.howOften, plant.lastWateredOn) && (
+                <button type="button" onClick={() => updatePlantStatus(plant)}>
+                  Just Watered
+                </button>
+              )}
             </PlantStatus>
           </PlantWrapper>
         ))}

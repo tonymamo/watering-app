@@ -3,6 +3,7 @@ import { navigate, Link } from 'gatsby';
 import { Formik } from 'formik';
 import { useFirebase } from 'react-redux-firebase';
 import { useSelector } from 'react-redux';
+import format from 'date-fns/format';
 
 import SEO from '../components/seo';
 import { RootState } from '../redux/ducks';
@@ -19,20 +20,23 @@ const New = () => {
       <Formik
         initialValues={initialValues}
         onSubmit={(values) => {
-          firebase
-            .firestore()
-            .collection('plants')
-            .add(values)
-            .then((docRef) => {
-              docRef.update({
-                plantId: docRef.id,
-                created: new Date(),
-              });
-              navigate('/');
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          console.log({
+            ...values,
+          });
+          // firebase
+          //   .firestore()
+          //   .collection('plants')
+          //   .add(values)
+          //   .then((docRef) => {
+          //     docRef.update({
+          //       plantId: docRef.id,
+          //       created: new Date(),
+          //     });
+          //     navigate('/');
+          //   })
+          //   .catch((err) => {
+          //     console.log(err);
+          //   });
         }}
       >
         {({
@@ -88,7 +92,7 @@ const New = () => {
               <label htmlFor="lastWateredOn">
                 Last Watered On
                 <input
-                  type="date"
+                  type="text"
                   name="lastWateredOn"
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -96,9 +100,7 @@ const New = () => {
                 />
               </label>
             </div>
-            <button type="submit" disabled={isSubmitting}>
-              Save
-            </button>
+            <button type="submit">Save</button>
           </form>
         )}
       </Formik>
