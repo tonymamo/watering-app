@@ -20,23 +20,23 @@ const New = () => {
       <Formik
         initialValues={initialValues}
         onSubmit={(values) => {
-          console.log({
-            ...values,
-          });
-          // firebase
-          //   .firestore()
-          //   .collection('plants')
-          //   .add(values)
-          //   .then((docRef) => {
-          //     docRef.update({
-          //       plantId: docRef.id,
-          //       created: new Date(),
-          //     });
-          //     navigate('/');
-          //   })
-          //   .catch((err) => {
-          //     console.log(err);
-          //   });
+          // console.log({
+          //   ...values,
+          // });
+          firebase
+            .firestore()
+            .collection('plants')
+            .add(values)
+            .then((docRef) => {
+              docRef.update({
+                plantId: docRef.id,
+                created: new Date(),
+              });
+              navigate('/');
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         }}
       >
         {({

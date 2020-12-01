@@ -14,6 +14,7 @@ import {
   FaTint,
 } from 'react-icons/fa';
 import { addDays, isBefore, isAfter } from 'date-fns';
+import lodash from 'lodash';
 
 import SEO from '../components/seo';
 import { RootState } from '../redux/ducks';
@@ -264,39 +265,64 @@ const IndexPage = () => {
       </div>
       {plants &&
         plants.length > 0 &&
-        plants.map((plant: any) => (
-          <PlantWrapper
-            key={plant.title}
-            isWatered={needsWatering(plant.howOften, plant.lastWateredOn)}
-          >
-            <PlantImageWrapper>
-              <PlantImage src="https://placekitten.com/200" alt={`A ${plant.title} plant`} />
-            </PlantImageWrapper>
-            <PlantInfo>
-              <h2>{plant.title}</h2>
-              <p>
-                <strong>Location:</strong> {plant.location}
-              </p>
-              <p>
-                <strong>How Often:</strong> {plant.howOften}
-              </p>
-            </PlantInfo>
-            <PlantStatus>
-              <p style={{ textAlign: 'center', margin: 0 }}>
-                {renderIcon(needsWatering(plant.howOften, plant.lastWateredOn))}
-                <br />
-                <strong>Last Watered:</strong> {plant.lastWateredOn}
-              </p>
-              {needsWatering(plant.howOften, plant.lastWateredOn) && (
-                <StyledButton type="button" onClick={() => updatePlantStatus(plant)}>
-                  <FaTint />
-                  {'  '}Water Me{'  '}
-                  <FaSeedling />
-                </StyledButton>
-              )}
-            </PlantStatus>
-          </PlantWrapper>
-        ))}
+        // using lodash, we can group our plants into NEW arrays instead of one large array, based on the Location key of each plant
+        // this will spit out an OBJECT with keys of each location ('bedroom', 'living room', etc), and then the values as an array,
+        // containing the plants in each location. Example:
+        //
+        // {
+        //   bedroom: [{}, {}], <-- 2 plants
+        //   dining-room: [{}], <-- 1 plant
+        //   ... and so on
+        // }
+        //
+        // Then, we wrap that groupBy with Object.entries, which turns our grouped OBJECT into an ARRAY
+        //
+        // Now that we have an Array, we can SORT it. No need to do a comparison function in this case
+        // because we have simple strings to do alphabetically, which are the keys ('bedroom', 'living room', etc)
+        //
+        // Now that our array is grouped, and sorted alphabetically, all by location,
+        // we can map over each location, and render each plant in each location,
+        // ie the 2 plants in the bedroom, then the 1 plant in kitchen, etc
+        Object.entries(lodash.groupBy(plants, 'location'))
+          .sort()
+          .map((location) => (
+            <>
+              <h2>{location[0]}</h2>
+              {location[1].map((plant: any) => (
+                <PlantWrapper
+                  key={plant.title}
+                  isWatered={needsWatering(plant.howOften, plant.lastWateredOn)}
+                >
+                  <PlantImageWrapper>
+                    <PlantImage src="https://placekitten.com/200" alt={`A ${plant.title} plant`} />
+                  </PlantImageWrapper>
+                  <PlantInfo>
+                    <h2>{plant.title}</h2>
+                    <p>
+                      <strong>Location:</strong> {plant.location}
+                    </p>
+                    <p>
+                      <strong>How Often:</strong> {plant.howOften}
+                    </p>
+                  </PlantInfo>
+                  <PlantStatus>
+                    <p style={{ textAlign: 'center', margin: 0 }}>
+                      {renderIcon(needsWatering(plant.howOften, plant.lastWateredOn))}
+                      <br />
+                      <strong>Last Watered:</strong> {plant.lastWateredOn}
+                    </p>
+                    {needsWatering(plant.howOften, plant.lastWateredOn) && (
+                      <StyledButton type="button" onClick={() => updatePlantStatus(plant)}>
+                        <FaTint />
+                        {'  '}Water Me{'  '}
+                        <FaSeedling />
+                      </StyledButton>
+                    )}
+                  </PlantStatus>
+                </PlantWrapper>
+              ))}
+            </>
+          ))}
     </>
   );
 };
