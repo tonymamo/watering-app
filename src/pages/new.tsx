@@ -31,6 +31,7 @@ const New = () => {
               docRef.update({
                 plantId: docRef.id,
                 created: new Date(),
+                archived: false,
               });
               navigate('/');
             })

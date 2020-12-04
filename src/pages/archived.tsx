@@ -12,7 +12,7 @@ import {
   FaSeedling,
   FaSmile,
   FaTint,
-  FaTrash,
+  FaUndo,
 } from 'react-icons/fa';
 import { addDays, isBefore, isAfter } from 'date-fns';
 import lodash from 'lodash';
@@ -83,10 +83,10 @@ const StyledButton = styled.button`
   }
 `;
 
-const IndexPage = () => {
+const Archived = () => {
   // const auth = useSelector((state: RootState) => state.firebase.auth);
   const plants = useSelector((state: RootState) => state.firestore.ordered.plants);
-  useFirestoreConnect([{ collection: 'plants', where: ['archived', '!=', true] }]);
+  useFirestoreConnect([{ collection: 'plants', where: ['archived', '==', true] }]);
 
   const firebase = useFirebase();
 
@@ -236,14 +236,14 @@ const IndexPage = () => {
       });
   };
 
-  const archivePlant = (plant) => {
+  const unArchivePlant = (plant) => {
     firebase
       .firestore()
       .collection('plants')
       .doc(plant.plantId)
       .set({
         ...plant,
-        archived: true,
+        archived: false,
       });
   };
 
@@ -271,14 +271,9 @@ const IndexPage = () => {
       <SEO title="Home" />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1>My Plants</h1>
-        <div>
-          <StyledButton as={Link} to="/new">
-            Add New Plant
-          </StyledButton>
-          <StyledButton as={Link} to="/archived">
-            View Archived
-          </StyledButton>
-        </div>
+        <StyledButton as={Link} to="/new">
+          Add New Plant
+        </StyledButton>
       </div>
       {plants &&
         plants.length > 0 &&
@@ -322,8 +317,8 @@ const IndexPage = () => {
                       <strong>How Often:</strong> {plant.howOften}
                     </p>
                     <p>
-                      <StyledButton type="button" onClick={() => archivePlant(plant)}>
-                        <FaTrash />
+                      <StyledButton type="button" onClick={() => unArchivePlant(plant)}>
+                        <FaUndo /> Restore
                       </StyledButton>
                     </p>
                   </PlantInfo>
@@ -349,4 +344,4 @@ const IndexPage = () => {
   );
 };
 
-export default IndexPage;
+export default Archived;
